@@ -36,6 +36,7 @@ edit /etc/ld.so.conf.d/libvirt.conf
 To start libvirt service, libvirtd is daemon process
 
 ~~~bash
+ldconfig
 /usr/local/sbin/libvirtd -d
 
 echo "Testing..."
