@@ -57,6 +57,18 @@ apt-get update
 apt-get install mariadb-server python-mysqldb
 ~~~
 
+edit /etc/mysql/conf.d/mysql_openstack.cnf
+
+~~~text
+[mysqld]
+bind-address = 0.0.0.0
+default-storage-engine = innodb
+innodb_file_per_table
+collation-server = utf8_general_ci
+init-connect = 'SET NAMES utf8'
+character-set-server = utf8
+~~~
+
 * To finalize installation
 ~~~bash
 service mysql restart
