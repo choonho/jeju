@@ -23,6 +23,8 @@ CINDER_DBPASS | cinder_dbpass
 CINDER_PASS | cinder_pass
 DASH_DBPASS | dash_dbpass
 RABBIT_PASS | rabbit_pass
+KEYSTONE_DBPASS | keystone_dbpass
+ADMIN_TOKEN | admin_token
 
 
 ## Before you begin
@@ -70,7 +72,7 @@ apt-get install rabbitmq-server
 * To configure the message queue service
 * Add the openstack user
 ~~~bash
-rabbitmqctl add_uer openstack ${RABBIT_PASS}
+rabbitmqctl add_user openstack ${RABBIT_PASS}
 ~~~
 * Permit configuration, write, and read access for the openstack user:
 ~~~bash
@@ -78,6 +80,154 @@ rabbitmqctl set_permissions openstack ".*" ".*" ".*"
 ~~~
 
 # Add the Identity service
+
+Create keystone database and update privileges.
+
+~~~bash
+mysql -u root -p -e "CREATE DATABASE keystone;"
+mysql -u root -p -e "GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'localhost' \
+  IDENTIFIED BY '${KEYSTONE_DBPASS}';"
+mysql -u root -p -e "GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'%' \
+  IDENTIFIED BY '${KEYSTONE_DBPASS}';"
+~~~
+
+Install keystone packages
+~~~bash
+apt-get install keystone python-openstackclient apache2 libapache2-mod-wsgi memcached python-memcache
+~~~
+
+edit /etc/keystone/keystone.conf
+~~~text
+[DEFAULT]
+
+admin_token = ${ADMIN_TOKEN}
+log_dir = /var/log/keystone
+
+[assignment]
+[auth]
+[cache]
+[catalog]
+[credential]
+
+[database]
+connection = mysql://keystone:${KEYSTONE_DBPASS}@${HOSTNAME}/keystone
+
+[domain_config]
+[endpoint_filter]
+[endpoint_policy]
+[eventlet_server]
+[eventlet_server_ssl]
+[federation]
+[fernet_tokens]
+[identity]
+[identity_mapping]
+[kvs]
+[ldap]
+[matchmaker_redis]
+[matchmaker_ring]
+
+[memcache]
+servers = localhost:11211
+
+[oauth1]
+[os_inherit]
+[oslo_messaging_amqp]
+[oslo_messaging_qpid]
+[oslo_messaging_rabbit]
+[oslo_middleware]
+[oslo_policy]
+[paste_deploy]
+[policy]
+[resource]
+
+[revoke]
+driver = keystone.contrib.revoke.backends.sql.Revoke
+
+[role]
+[saml]
+[signing]
+[ssl]
+
+[token]
+provider = keystone.token.providers.uuid.Provider
+driver = keystone.token.persistence.backends.memcache.Token
+
+[trust]
+
+[extra_headers]
+Distribution = Ubuntu
+~~~
+
+* Populate the Identity service database:
+~~~bash
+su -s /bin/sh -C "keystone-manage db_sync" keystone
+~~~
+
+* To configure the Apache HTTP Server
+
+edit /etc/apache2/sites-available/wsgi-keystone.conf
+
+~~~text
+Listen 5000
+Listen 35357
+
+<VirtualHost *:5000>
+    WSGIDaemonProcess keystone-public processes=5 threads=1 user=keystone display-name=%{GROUP}
+    WSGIProcessGroup keystone-public
+    WSGIScriptAlias / /var/www/cgi-bin/keystone/main
+    WSGIApplicationGroup %{GLOBAL}
+    WSGIPassAuthorization On
+    <IfVersion >= 2.4>
+      ErrorLogFormat "%{cu}t %M"
+    </IfVersion>
+    LogLevel info
+    ErrorLog /var/log/apache2/keystone-error.log
+    CustomLog /var/log/apache2/keystone-access.log combined
+</VirtualHost>
+
+<VirtualHost *:35357>
+    WSGIDaemonProcess keystone-admin processes=5 threads=1 user=keystone display-name=%{GROUP}
+    WSGIProcessGroup keystone-admin
+    WSGIScriptAlias / /var/www/cgi-bin/keystone/admin
+    WSGIApplicationGroup %{GLOBAL}
+    WSGIPassAuthorization On
+    <IfVersion >= 2.4>
+      ErrorLogFormat "%{cu}t %M"
+    </IfVersion>
+    LogLevel info
+    ErrorLog /var/log/apache2/keystone-error.log
+    CustomLog /var/log/apache2/keystone-access.log combined
+</VirtualHost>
+~~~
+
+* Enable the Identity service virtual hosts:
+~~~bash
+ln -s /etc/apache2/sites-available/wsgi-keystone.conf /etc/apache2/sites-enabled
+~~~
+
+* Create the directory structure for the WSGI components:
+~~~bash
+mkdir -p /var/www/cgi-bin/keystone
+~~~
+
+* Copy the WSGI components from the upstream repository into this directory:
+~~~bash
+curl http://git.openstack.org/cgit/openstack/keystone/plain/httpd/keystone.py?h=stable/kilo \
+  | tee /var/www/cgi-bin/keystone/main /var/www/cgi-bin/keystone/admin
+~~~
+
+* Adjust ownership and permissions on this directory and the files in it:
+~~~bash
+chown -R keystone:keystone /var/www/cgi-bin/keystone
+chmod 755 /var/www/cgi-bin/keystone/*
+~~~
+
+* To finalize installtion
+~~~bash
+service apache2 restart
+rm -f /var/lib/keystone/keystone.db
+~~~
+
 # Add the Image service
 # Add the Compute service
 # Add a networking component
