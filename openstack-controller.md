@@ -85,10 +85,14 @@ Create keystone database and update privileges.
 
 ~~~bash
 mysql -u root -p -e "CREATE DATABASE keystone;"
-mysql -u root -p -e "GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'localhost' \
-  IDENTIFIED BY '${KEYSTONE_DBPASS}';"
-mysql -u root -p -e "GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'%' \
-  IDENTIFIED BY '${KEYSTONE_DBPASS}';"
+~~~
+
+~~~bash
+mysql -u root -p -e "GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'localhost' IDENTIFIED BY '${KEYSTONE_DBPASS}';"
+~~~
+
+~~~bash
+mysql -u root -p -e "GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'%' IDENTIFIED BY '${KEYSTONE_DBPASS}';"
 ~~~
 
 Install keystone packages
@@ -160,10 +164,14 @@ Distribution = Ubuntu
 
 * Populate the Identity service database:
 ~~~bash
-su -s /bin/sh -C "keystone-manage db_sync" keystone
+su -s /bin/sh -c "keystone-manage db_sync" keystone
 ~~~
 
 * To configure the Apache HTTP Server
+
+~~~bash
+echo "ServerName ${HOSTNAME}" >> /etc/apache2/apache2.conf
+~~~
 
 edit /etc/apache2/sites-available/wsgi-keystone.conf
 
