@@ -19,10 +19,12 @@ This example installs three-node architecture with OpenStack Networking(neutron)
 Keyword     | Value
 -----       | -----
 ADMIN_PASS  | admin_pass
-CINDER_DBPASS | cinder_dbpass
 CINDER_PASS | cinder_pass
 DASH_DBPASS | dash_dbpass
 RABBIT_PASS | rabbit_pass
+NOVA_DBPASS | nova_dbpass
+GLANCE_DBPASS | glance_dbpass
+CINDER_DBPASS | cinder_dbpass
 KEYSTONE_DBPASS | keystone_dbpass
 ADMIN_TOKEN | admin_token
 
@@ -96,15 +98,34 @@ rabbitmqctl set_permissions openstack ".*" ".*" ".*"
 Create keystone database and update privileges.
 
 ~~~bash
-mysql -u root -p -e "CREATE DATABASE keystone;"
-~~~
-
-~~~bash
-mysql -u root -p -e "GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'localhost' IDENTIFIED BY '${KEYSTONE_DBPASS}';"
-~~~
-
-~~~bash
-mysql -u root -p -e "GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'%' IDENTIFIED BY '${KEYSTONE_DBPASS}';"
+mysql -u root -p <<EOF
+CREATE DATABASE nova;
+GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'%' \
+IDENTIFIED BY '${NOVA_DBPASS}';
+CREATE DATABASE glance;
+GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'%' \
+IDENTIFIED BY '${GLANCE_DBPASS}';
+CREATE DATABASE keystone;
+GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'%' \
+IDENTIFIED BY '${KEYSTONE_DBPASS}';
+CREATE DATABASE neutron;
+GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'%' \
+IDENTIFIED BY '${NEUTRON_DBPASS}';
+CREATE DATABASE cinder;
+GRANT ALL PRIVILEGES ON cinder.* TO 'cinder'@'%' \
+IDENTIFIED BY '${CINDER_DBPASS}';
+GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'localhost' \
+IDENTIFIED BY '${NOVA_DBPASS}';
+GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'localhost' \
+IDENTIFIED BY '${GLANCE_DBPASS}';
+GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'localhost' \
+IDENTIFIED BY '${KEYSTONE_DBPASS}';
+GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'localhost' \
+IDENTIFIED BY '${NEUTRON_DBPASS}';
+GRANT ALL PRIVILEGES ON cinder.* TO 'cinder'@'localhost' \
+IDENTIFIED BY '${CINDER_DBPASS}';
+FLUSH PRIVILEGES;
+EOF
 ~~~
 
 Install keystone packages
