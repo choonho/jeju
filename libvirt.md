@@ -27,7 +27,8 @@ make install
 edit /etc/ld.so.conf.d/libvirt.conf
 
 ~~~text
-/usr/lib/libvirt.so.0
+/usr/local/lib/libvirt.so.0
+/usr/local/lib/libvirt-admin.so.0
 ~~~
 
 # Start service
