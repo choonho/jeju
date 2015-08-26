@@ -43,7 +43,7 @@ apt-get -y install ntp
 ## OpenStack packages
 * Install the Ubuntu cloud archive keyring and repository
 ~~~bash
-apt-get install ubuntu-cloud-keyring
+apt-get -y install ubuntu-cloud-keyring
 echo "deb http://ubuntu-cloud.archive.canonical.com/ubuntu" \
   "trusty-updates/kilo main" > /etc/apt/sources.list.d/cloudarchive-kilo.list
 ~~~
@@ -56,7 +56,7 @@ apt-get update
 ## SQL database
 * To install and configure the database server
 ~~~bash
-apt-get install mariadb-server python-mysqldb
+apt-get -y install mariadb-server python-mysqldb
 ~~~
 
 edit /etc/mysql/conf.d/mysql_openstack.cnf
@@ -80,7 +80,7 @@ service mysql restart
 ## Message queue
 * To install the message queue service
 ~~~bash
-apt-get install rabbitmq-server
+apt-get -y install rabbitmq-server
 ~~~
 
 * To configure the message queue service
@@ -130,7 +130,7 @@ EOF
 
 Install keystone packages
 ~~~bash
-apt-get install keystone python-openstackclient apache2 libapache2-mod-wsgi memcached python-memcache
+apt-get -y install keystone python-openstackclient apache2 libapache2-mod-wsgi memcached python-memcache
 ~~~
 
 edit /etc/keystone/keystone.conf
@@ -285,9 +285,9 @@ openstack service create \
 echo "Create the Identity service API endpoint"
 openstack endpoint create \
 --os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
---publicurl http://controller:5000/v2.0 \
---internalurl http://controller:5000/v2.0 \
---adminurl http://controller:35357/v2.0 \
+--publicurl http://${HOSTNAME}:5000/v2.0 \
+--internalurl http://${HOSTNAME}:5000/v2.0 \
+--adminurl http://${HOSTNAME}:35357/v2.0 \
 --region RegionOne \
 identity
 ~~~
@@ -351,8 +351,450 @@ openstack role add \
 
 
 # Add the Image service
+
+## Install and configure
+
+* Create glance user
+
+~~~bash
+echo "Create glance user"
+openstack user create \
+--os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
+--password-prompt glance
+
+openstack role add \
+--os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
+--project service --user glance admin
+
+openstack service create \
+--os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
+--name glance --description "OpenStack Image Service" image
+~~~
+
+* Create the Image service API endpoint:
+
+~~~bash
+openstack endpoint create \
+--os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
+--publicurl http://${HOSTNAME}:9292 \
+--internalurl http://${HOSTNAME}:9292 \
+--adminurl http://${HOSTNAME}:9292 \
+--region RegionOne \
+image
+~~~
+
+* To install and configure the Image service components
+
+~~~bash
+apt-get -y install glance python-glanceclient
+~~~
+
+edit /etc/glance/glance-api.conf
+
+~~~text
+[DEFAULT]
+bind_host = 0.0.0.0
+bind_port = 9292
+
+log_file = /var/log/glance/api.log
+backlog = 4096
+
+registry_host = 0.0.0.0
+registry_port = 9191
+
+registry_client_protocol = http
+notification_driver = noop
+
+rabbit_host = ${HOSTNAME}
+rabbit_port = 5672
+rabbit_use_ssl = false
+rabbit_userid = openstack
+rabbit_password = ${RABBIT_PASS}
+rabbit_virtual_host = /
+rabbit_notification_exchange = glance
+rabbit_notification_topic = notifications
+rabbit_durable_queues = False
+
+qpid_notification_exchange = glance
+qpid_notification_topic = notifications
+qpid_hostname = localhost
+qpid_port = 5672
+qpid_username =
+qpid_password =
+qpid_sasl_mechanisms =
+qpid_reconnect_timeout = 0
+qpid_reconnect_limit = 0
+qpid_reconnect_interval_min = 0
+qpid_reconnect_interval_max = 0
+qpid_reconnect_interval = 0
+qpid_heartbeat = 5
+# Set to 'ssl' to enable SSL
+qpid_protocol = tcp
+qpid_tcp_nodelay = True
+
+delayed_delete = False
+scrub_time = 43200
+scrubber_datadir = /var/lib/glance/scrubber
+
+image_cache_dir = /var/lib/glance/image-cache/
+
+[oslo_policy]
+[database]
+backend = sqlalchemy
+connection = mysql://glance:${GLANCE_DBPASS}@${HOSTNAME}/glance
+
+[oslo_concurrency]
+
+[keystone_authtoken]
+auth_uri = http://${HOSTNAME}:5000
+auth_url = http://${HOSTNAME}:35357
+auth_plugin = password
+project_domain_id = default
+user_domain_id = default
+project_name = service
+username = glance
+password = ${GLANCE_PASS}
+
+[paste_deploy]
+flavor=keystone
+
+[store_type_location_strategy]
+[profiler]
+[task]
+[taskflow_executor]
+[glance_store]
+default_store = file
+filesystem_store_datadir = /var/lib/glance/images/
+~~~
+
+
+edit /etc/glance/glance-registry.conf
+
+~~~text
+[DEFAULT]
+bind_host = 0.0.0.0
+bind_port = 9191
+log_file = /var/log/glance/registry.log
+backlog = 4096
+api_limit_max = 1000
+limit_param_default = 25
+notification_driver = noop
+rabbit_host = ${HOSTNAME}
+rabbit_port = 5672
+rabbit_use_ssl = false
+rabbit_userid = openstack
+rabbit_password = ${RABBIT_PASS}
+rabbit_virtual_host = /
+rabbit_notification_exchange = glance
+rabbit_notification_topic = notifications
+rabbit_durable_queues = False
+
+qpid_notification_exchange = glance
+qpid_notification_topic = notifications
+qpid_hostname = localhost
+qpid_port = 5672
+qpid_username =
+qpid_password =
+qpid_sasl_mechanisms =
+qpid_reconnect_timeout = 0
+qpid_reconnect_limit = 0
+qpid_reconnect_interval_min = 0
+qpid_reconnect_interval_max = 0
+qpid_reconnect_interval = 0
+qpid_heartbeat = 5
+qpid_protocol = tcp
+qpid_tcp_nodelay = True
+
+[oslo_policy]
+[database]
+backend = sqlalchemy
+connection = mysql://glance:${GLANCE_DBPASS}@${HOSTNAME}/glance
+[keystone_authtoken]
+auth_uri = http://${HOSTNAME}:5000
+auth_url = http://${HOSTNAME}:35357
+auth_plugin = password
+project_domain_id = default
+user_domain_id = default
+project_name = service
+username = glance
+password = ${GLANCE_PASS}
+
+[paste_deploy]
+flavor = keystone
+
+[profiler]
+~~~
+
+* Populate the Image service database:
+
+~~~bash
+su -s /bin/sh -c "glance-manage db_sync" glance
+~~~
+
+* To finalize installation
+
+~~~bash
+service glance-registry restart
+service glance-api restart
+~~~
+
+~~~bash
+rm -f /var/lib/glance/glance.sqlite
+~~~
+
+
 # Add the Compute service
+
+## Install and configure controller node
+
+* Create nova user
+
+~~~bash
+echo "Create nova user"
+openstack user create \
+--os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
+--password-prompt nova
+
+openstack role add \
+--os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
+--project service --user nova admin
+
+openstack service create \
+--os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
+--name nova --description "OpenStack Compute Service" nova
+~~~
+
+* Create the Compute service API endpoint:
+
+~~~bash
+openstack endpoint create \
+--os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
+--publicurl http://${HOSTNAME}:8774/v2/%\(tenant_id\)s \
+--internalurl http://${HOSTNAME}:8774/v2/%\(tenant_id\)s \
+--adminurl http://${HOSTNAME}:8774/v2/%\(tenant_id\)s \
+--region RegionOne \
+compute
+~~~
+
+* To install and configure Compute controller components
+
+~~~bash
+apt-get -y install nova-api nova-cert nova-conductor nova-consoleauth \
+  nova-novncproxy nova-scheduler python-novaclient
+~~~
+
+edit /etc/nova/nova.conf
+
+~~~text
+[DEFAULT]
+
+dhcpbridge_flagfile=/etc/nova/nova.conf
+dhcpbridge=/usr/bin/nova-dhcpbridge
+logdir=/var/log/nova
+state_path=/var/lib/nova
+lock_path=/var/lock/nova
+force_dhcp_release=True
+libvirt_use_virtio_for_bridges=True
+verbose=True
+ec2_private_dns_show_ip=True
+api_paste_config=/etc/nova/api-paste.ini
+enabled_apis=ec2,osapi_compute,metadata
+rpc_backend = rabbit
+auth_strategy = keystone
+my_ip = ${MY_IP}
+vncserver_listen = ${MY_IP}
+vncserver_proxyclient_address = ${MY_IP}
+
+network_api_class = nova.network.neutronv2.api.API
+security_group_api = neutron
+linuxnet_interface_driver = nova.network.linux_net.LinuxOVSInterfaceDriver
+firewall_driver = nova.virt.firewall.NoopFirewallDriver
+
+[database]
+connection = mysql://nova:${NOVA_DBPASS}@${HOSTNAME}/nova
+
+[oslo_messaging_rabbit]
+rabbit_host = ${HOSTNAME}
+rabbit_userid = openstack
+rabbit_password = ${RABBIT_PASS}
+
+[keystone_authtoken]
+auth_uri = http://${HOSTNAME}:5000
+auth_url = http://${HOSTNAME}:35357
+auth_plugin = password
+project_domain_id = default
+user_domain_id = default
+project_name = service
+username = nova
+password = ${NOVA_PASS}
+
+[glance]
+host = ${HOSTNAME}
+
+[oslo_concurrency]
+lock_path = /var/lib/nova/tmp
+
+[neutron]
+url = http://${HOSTNAME}:9696
+auth_strategy = keystone
+admin_auth_url = http://${HOSTNAME}:35357/v2.0
+admin_tenant_name = service
+admin_username = neutron
+admin_password = ${NEUTRON_PASS}
+
+~~~
+
+* To finalize installation
+
+~~~bash
+service nova-api restart
+service nova-cert restart
+service nova-consoleauth restart
+service nova-scheduler restart
+service nova-conductor restart
+service nova-novncproxy restart
+~~~
+
+By default, the Ubuntu packages create an SQLite database.
+
+~~~bash
+rm -f /var/lib/nova/nova.sqlite
+~~~
+
 # Add a networking component
+
+## OpenStack Networking (neutron)
+
+### Install and configure controller node
+
+* Create neutron user
+
+~~~bash
+echo "Create neutron user"
+openstack user create \
+--os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
+--password-prompt neutron
+
+openstack role add \
+--os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
+--project service --user neutron admin
+
+openstack service create \
+--os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
+--name neutron --description "OpenStack Networking Service" network
+~~~
+
+* Create the Networking service API endpoint:
+
+~~~bash
+openstack endpoint create \
+--os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
+--publicurl http://${HOSTNAME}:9696 \
+--adminurl http://${HOSTNAME}:9696 \
+--internalurl http://${HOSTNAME}:9696 \
+--region RegionOne \
+network
+~~~
+
+* To  install the Networking components
+
+~~~bash
+apt-get -y install neutron-server neutron-plugin-ml2 python-neutronclient
+~~~
+
+* To configure the Networking server component
+
+edit /etc/neutron/neutron.conf
+
+~~~text
+[DEFAULT]
+core_plugin = ml2
+service_plugins = router
+auth_strategy = keystone
+allow_overlapping_ips = True
+notify_nova_on_port_status_changes = True
+notify_nova_on_port_data_changes = True
+nova_url = http://${HOSTNAME}:8774/v2
+rpc_backend=rabbit
+
+[matchmaker_redis]
+[matchmaker_ring]
+[quotas]
+[agent]
+root_helper = sudo /usr/bin/neutron-rootwrap /etc/neutron/rootwrap.conf
+
+[keystone_authtoken]
+auth_uri = http://${HOSTNAME}:5000
+auth_url = http://${HOSTNAME}:35357
+auth_plugin = password
+project_domain_id = default
+user_domain_id = default
+project_name = service
+username = neutron
+password = ${NEUTRON_PASS}
+
+[database]
+connection = mysql://neutron:${NEUTRON_DBPASS}@${HOSTNAME}/neutron
+
+[nova]
+auth_url = http://${HOSTNAME}:35357
+auth_plugin = password
+project_domain_id = default
+user_domain_id = default
+region_name = RegionOne
+project_name = service
+username = nova
+password = ${NOVA_PASS}
+
+[oslo_concurrency]
+lock_path = $state_path/lock
+
+[oslo_policy]
+[oslo_messaging_amqp]
+[oslo_messaging_qpid]
+[oslo_messaging_rabbit]
+rabbit_host = ${HOSTNAME}
+rabbit_userid = openstack
+rabbit_password = ${RABBIT_PASS}
+~~~
+
+edit /etc/neutron/plugins/ml2/ml2_conf.ini
+
+~~~text
+[ml2]
+type_drivers = flat,vlan,gre,vxlan
+tenant_network_types = gre
+mechanism_drivers = openvswitch
+
+[ml2_type_flat]
+
+[ml2_type_vlan]
+
+[ml2_type_gre]
+tunnel_id_ranges = 1:1000
+
+
+[ml2_type_vxlan]
+[securitygroup]
+enable_security_group = True
+enable_ipset = True
+firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+~~~
+
+* To finalize the installation
+
+~~~bash
+su -s /bin/sh -c "neutron-db-manage --config-file /etc/neutron/neutron.conf \
+  --config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade head" neutron
+~~~
+
+Restart the Compute service
+
+~~~bash
+service nova-api restart
+service neutron-server restart
+~~~
+
 # Add the dashboard
 # Add the Block Storage service
 
