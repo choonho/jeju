@@ -273,8 +273,8 @@ rm -f /var/lib/keystone/keystone.db
 ## Create the service entity and API endpoint
 
 * To configure prerequisites
-
 * To create the service entity and API endpoint
+
 ~~~bash
 echo "Create the service entity for the Identity service"
 openstack service create \
@@ -297,6 +297,7 @@ The identity service provides authentication services for each OpenStack service
 The authentication service uses a combination of domains, projects (tenants), users, and roles.
 
 * To create tenants, users, and roles
+
 ~~~bash
 echo "Create the admin project"
 openstack project create \
@@ -320,17 +321,19 @@ openstack role add \
 ~~~
 
 * This guide uses a service project that contains a unique user for each service that you add to your environment
+
 ~~~bash
 openstack project create \
 --os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
 --description "Service Project" service
 ~~~
 
-* Regular (non-admin)tasks should use an unprivileged project and user. 
+* Regular (non-admin)tasks should use an unprivileged project and user.
+
 ~~~bash
 openstack project create \
 --os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
--- description "Demo Project" demo
+--description "Demo Project" demo
 
 openstack user create \
 --os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
