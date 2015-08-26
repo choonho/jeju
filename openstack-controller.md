@@ -337,7 +337,7 @@ openstack project create \
 
 openstack user create \
 --os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
---pasword-prompt demo
+--password-prompt demo
 
 openstack role create \
 --os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
