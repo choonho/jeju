@@ -571,7 +571,7 @@ openstack role add \
 
 openstack service create \
 --os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
---name nova --description "OpenStack Compute Service" nova
+--name nova --description "OpenStack Compute Service" compute
 ~~~
 
 * Create the Compute service API endpoint:
