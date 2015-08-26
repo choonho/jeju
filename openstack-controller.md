@@ -95,7 +95,7 @@ rabbitmqctl set_permissions openstack ".*" ".*" ".*"
 
 # Add the Identity service
 
-Create keystone database and update privileges.
+## Create keystone database and update privileges.
 
 ~~~bash
 mysql -u root -p <<EOF
@@ -253,6 +253,7 @@ mkdir -p /var/www/cgi-bin/keystone
 
 * Copy the WSGI components from the upstream repository into this directory:
 ~~~bash
+apt-get install -y curl
 curl http://git.openstack.org/cgit/openstack/keystone/plain/httpd/keystone.py?h=stable/kilo \
   | tee /var/www/cgi-bin/keystone/main /var/www/cgi-bin/keystone/admin
 ~~~
@@ -268,6 +269,82 @@ chmod 755 /var/www/cgi-bin/keystone/*
 service apache2 restart
 rm -f /var/lib/keystone/keystone.db
 ~~~
+
+## Create the service entity and API endpoint
+
+* To configure prerequisites
+
+* To create the service entity and API endpoint
+~~~bash
+echo "Create the service entity for the Identity service"
+openstack service create \
+--os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
+--name keystone --description "OpenStack Identity" identity
+
+echo "Create the Identity service API endpoint"
+openstack endpoint create \
+--os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
+--publicurl http://controller:5000/v2.0 \
+--internalurl http://controller:5000/v2.0 \
+--adminurl http://controller:35357/v2.0 \
+--region RegionOne \
+identity
+~~~
+
+## Create projects, users, and roles
+
+The identity service provides authentication services for each OpenStack service.
+The authentication service uses a combination of domains, projects (tenants), users, and roles.
+
+* To create tenants, users, and roles
+~~~bash
+echo "Create the admin project"
+openstack project create \
+--os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
+--description "Admin Project" admin
+
+echo "Create the admin user"
+openstack user create \
+--os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
+--password-prompt admin
+
+echo "Create the admin role"
+openstack role create \
+--os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
+admin
+
+echo "Add the admin role to the admin project and user"
+openstack role add \
+--os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
+--project admin --user admin admin
+~~~
+
+* This guide uses a service project that contains a unique user for each service that you add to your environment
+~~~bash
+openstack project create \
+--os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
+--description "Service Project" service
+~~~
+
+* Regular (non-admin)tasks should use an unprivileged project and user. 
+~~~bash
+openstack project create \
+--os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
+-- description "Demo Project" demo
+
+openstack user create \
+--os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
+--pasword-prompt demo
+
+openstack role create \
+--os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
+user
+
+openstack role add \
+--os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
+--project demo --user demo user
+~~~
+
 
 # Add the Image service
 # Add the Compute service
