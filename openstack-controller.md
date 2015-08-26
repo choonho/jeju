@@ -19,13 +19,18 @@ This example installs three-node architecture with OpenStack Networking(neutron)
 Keyword     | Value
 -----       | -----
 ADMIN_PASS  | admin_pass
+DEMO_PASS   | demo_pass
+NOVA_PASS   | nova_pass
 CINDER_PASS | cinder_pass
+GLANCE_PASS | glance_pass
+NEUTRON_PASS | neutron_pass
 DASH_DBPASS | dash_dbpass
 RABBIT_PASS | rabbit_pass
 NOVA_DBPASS | nova_dbpass
 GLANCE_DBPASS | glance_dbpass
 CINDER_DBPASS | cinder_dbpass
 KEYSTONE_DBPASS | keystone_dbpass
+NEUTRON_DBPASS | neutron_dbpass
 ADMIN_TOKEN | admin_token
 
 
@@ -308,7 +313,7 @@ openstack project create \
 echo "Create the admin user"
 openstack user create \
 --os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
---password-prompt admin
+--password ${ADMIN_PASS} admin
 
 echo "Create the admin role"
 openstack role create \
@@ -338,7 +343,7 @@ openstack project create \
 
 openstack user create \
 --os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
---password-prompt demo
+--password ${DEMO_PASS} demo
 
 openstack role create \
 --os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
@@ -360,7 +365,7 @@ openstack role add \
 echo "Create glance user"
 openstack user create \
 --os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
---password-prompt glance
+--password ${GLANCE_PASS} glance
 
 openstack role add \
 --os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
@@ -553,7 +558,7 @@ rm -f /var/lib/glance/glance.sqlite
 echo "Create nova user"
 openstack user create \
 --os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
---password-prompt nova
+--password ${NOVA_PASS} nova
 
 openstack role add \
 --os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
@@ -673,7 +678,7 @@ rm -f /var/lib/nova/nova.sqlite
 echo "Create neutron user"
 openstack user create \
 --os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
---password-prompt neutron
+--password ${NEUTRON_PASS} neutron
 
 openstack role add \
 --os-token ${ADMIN_TOKEN} --os-url http://${HOSTNAME}:35357/v2.0 \
