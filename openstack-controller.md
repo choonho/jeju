@@ -268,6 +268,7 @@ chmod 755 /var/www/cgi-bin/keystone/*
 ~~~bash
 service apache2 restart
 rm -f /var/lib/keystone/keystone.db
+service keystone restart
 ~~~
 
 ## Create the service entity and API endpoint
