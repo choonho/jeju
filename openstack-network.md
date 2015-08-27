@@ -24,6 +24,7 @@ NEUTRON_PASS | neutron_pass
 RABBIT_PASS | rabbit_pass
 MY_IP   | override_real_host_IP
 TUNNEL_IP   | override_real_tunnel_IP
+EXTERNAL_INTERFACE | override_external_network_interface_name
 
 
 
