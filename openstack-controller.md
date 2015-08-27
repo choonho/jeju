@@ -359,6 +359,36 @@ openstack role add \
 --project demo --user demo user
 ~~~
 
+## Create OpenStack client environment scripts
+
+edit admin-openrc.sh
+
+~~~text
+export OS_PROJECT_DOMAIN_ID=default
+export OS_USER_DOMAIN_ID=default
+export OS_PROJECT_NAME=admin
+export OS_TENANT_NAME=admin
+export OS_USERNAME=admin
+export OS_PASSWORD=${ADMIN_PASS}
+export OS_AUTH_URL=http://${HOSTNAME}:35357/v3
+~~~
+
+edit demo-openrc.sh
+
+~~~text
+export OS_PROJECT_DOMAIN_ID=default
+export OS_USER_DOMAIN_ID=default
+export OS_PROJECT_NAME=demo
+export OS_TENANT_NAME=demo
+export OS_USERNAME=demo
+export OS_PASSWORD=${DEMO_PASS}
+export OS_AUTH_URL=http://controller:5000/v3
+~~~
+
+~~~bash
+chmod 755 admin-openrc.sh
+chmod 755 demo-openrc.sh
+~~~
 
 # Add the Image service
 
