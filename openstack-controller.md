@@ -32,6 +32,7 @@ CINDER_DBPASS | cinder_dbpass
 KEYSTONE_DBPASS | keystone_dbpass
 NEUTRON_DBPASS | neutron_dbpass
 ADMIN_TOKEN | admin_token
+MY_IP       | override_host_ip_address
 
 
 ## Before you begin
