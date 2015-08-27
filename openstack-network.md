@@ -18,13 +18,13 @@ This example installs three-node architecture with OpenStack Networking(neutron)
 
 Keyword     | Value
 -----       | -----
-CONTROLLER  | override_real_controller
+CONTROLLER  | override_real_controller(ex. 10.0.0.11)
 NOVA_PASS   | nova_pass
 NEUTRON_PASS | neutron_pass
 RABBIT_PASS | rabbit_pass
-MY_IP   | override_real_host_IP
-TUNNEL_IP   | override_real_tunnel_IP
-EXTERNAL_INTERFACE | override_external_network_interface_name
+MY_IP   | override_real_host_IP (ex. 10.0.0.21)
+TUNNEL_IP   | override_real_tunnel_IP (ex. 10.0.1.21)
+EXTERNAL_INTERFACE | override_external_network_interface_name (ex. eth2)
 
 
 
