@@ -19,16 +19,12 @@ This example installs three-node architecture with OpenStack Networking(neutron)
 Keyword     | Value
 -----       | -----
 CONTROLLER  | override_real_controller
-ADMIN_PASS  | admin_pass
-DEMO_PASS   | demo_pass
 NOVA_PASS   | nova_pass
-CINDER_PASS | cinder_pass
-GLANCE_PASS | glance_pass
 NEUTRON_PASS | neutron_pass
-DASH_DBPASS | dash_dbpass
 RABBIT_PASS | rabbit_pass
-ADMIN_TOKEN | admin_token
 MY_IP   | override_real_host_IP
+TUNNEL_IP   | override_real_tunnel_IP
+
 
 
 ## Before you begin
@@ -144,6 +140,12 @@ rm f /var/lib/nova/nova.sqlite
 
 edit /etc/sysctl.conf
 
+~~~text
+net.ipv4.conf.all.rp_filter=0
+net.ipv4.conf.default.rp_filter=0
+net.bridge.bridge-nf-call-iptables=1
+net.bridge.bridge-nf-call-ip6tables=1
+~~~
 
 Implement the changes:
 
@@ -154,7 +156,7 @@ sysctl -p
 * To install the Networking components
 
 ~~~bash
-apt-get install neutron-plugin-ml2 neutron-plugin-openvswitch-agent
+apt-get -y install neutron-plugin-ml2 neutron-plugin-openvswitch-agent
 ~~~
 
 * To configure the Networking common components
@@ -162,6 +164,42 @@ apt-get install neutron-plugin-ml2 neutron-plugin-openvswitch-agent
 edit /etc/neutron/neutron.conf
 
 ~~~text
+[DEFAULT]
+state_path = /var/lib/neutron
+lock_path = $state_path/lock
+
+rpc_backend = rabbit
+
+core_plugin = ml2
+service_plugins = router
+allow_overlapping_ips = True
+
+auth_strategy = keystone
+
+notification_driver = neutron.openstack.common.notifier.rpc_notifier
+[quotas]
+[agent]
+root_helper = sudo /usr/bin/neutron-rootwrap /etc/neutron/rootwrap.conf
+[keystone_authtoken]
+auth_uri = http://${CONTROLLER}:5000
+auth_url = http://${CONTROLLER}:35357
+auth_plugin = password
+project_domain_id = default
+user_domain_id = default
+project_name = service
+username = neutron
+password = ${NEUTRON_PASS}
+
+[database]
+[service_providers]
+service_provider=LOADBALANCER:Haproxy:neutron.services.loadbalancer.drivers.haproxy.plugin_driver.HaproxyOnHostPluginDriver:default
+service_provider=VPN:openswan:neutron.services.vpn.service_drivers.ipsec.IPsecVPNDriver:default
+
+[oslo_messaging_rabbit]
+rabbit_host = ${CONTROLLER}
+rabbit_userid = openstack
+rabbit_password = ${RABBIT_PASS}
+
 ~~~
 
 * To configure the Modular Layer 2 (ML2) plug-in
@@ -169,6 +207,28 @@ edit /etc/neutron/neutron.conf
 edit /etc/neutron/plugins/ml2/ml2_conf.ini
 
 ~~~text
+[ml2]
+type_drivers = flat,vlan,gre,vxlan
+tenant_network_types = gre
+mechanism_drivers = openvswitch
+
+[ml2_type_flat]
+[ml2_type_vlan]
+[ml2_type_gre]
+tunnel_id_ranges = 1:1000
+
+[ml2_type_vxlan]
+[securitygroup]
+enable_security_group = True
+enable_ipset = True
+firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+
+[ovs]
+local_ip = ${TUNNEL_IP}
+
+[agent]
+tunnel_types = gre
+
 ~~~
 
 * To configure the Open vSwitch (OVS) service
@@ -177,5 +237,7 @@ Restart the OVS service:
 
 ~~~bash
 service openvswitch-switch restart
+service nova-compute restart
+service neutron-plugin-openvswitch-agent restart
 ~~~
 
