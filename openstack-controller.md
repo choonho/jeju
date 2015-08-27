@@ -685,7 +685,15 @@ admin_password = ${NEUTRON_PASS}
 service_metadata_proxy = True
 metadata_proxy_shared_secret = METADATA_SECRET
 
+
 ~~~
+
+* Populate the Compute database:
+
+~~~bash
+su -s /bin/sh -c "nova-manage db sync" nova
+~~~
+
 
 * To finalize installation
 
