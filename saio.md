@@ -6,6 +6,7 @@ Keyword | Value
 ---- | ----
 USER | root
 DISK | sdb
+BRANCH | origin/stable/juno
 
 ## Installing dependencies
 ~~~bash
@@ -72,6 +73,7 @@ Check out the swift repo
 ~~~bash
 cd $HOME
 git clone https://github.com/openstack/swift.git
+git checkout ${BRANCH}
 ~~~
 
 Build a development installation of swift
@@ -80,7 +82,7 @@ Build a development installation of swift
 cd $HOME/swift; sudo pip install -r requirements.txt; sudo python setup.py develop; cd -
 ~~~
 
-Install swift's test dependencies
+Install swifts test dependencies
 
 ~~~bash
 cd $HOME/swift; sudo pip install -r test-requirements.txt
@@ -126,6 +128,7 @@ rsync rsync://pub@localhost/
 Populate the /etc/swift directory itself:
 
 ~~~bash
+rm -rf /etc/swift
 cd $HOME/swift/doc; sudo cp -r saio/swift /etc/swift; cd -
 chown -R ${USER}:${USER} /etc/swift
 ~~~
@@ -136,10 +139,20 @@ Update <your-user-name> references in the Swift config files:
 find /etc/swift/ -name \*.conf | xargs sudo sed -i "s/<your-user-name>/${USER}/"
 ~~~
 
+## Setting up scripts for running Swfit
+
+Copy the SAIO scripts for resetting the environment
+
+~~~bash
+mkdir -p $HOME/bin
+cd $HOME/swift/doc; cp saio/bin/* $HOME/bin; cd -
+chmod +x $HOME/bin/*
+~~~
+
 Install the sample configuration file for running tests:
 
 ~~~bash
-cd $HOME/swift/test/sample.conf /etc/swift/test.conf
+cp $HOME/swift/test/sample.conf /etc/swift/test.conf
 ~~~
 
 Add an environment variable for running tests below:
