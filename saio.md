@@ -73,7 +73,9 @@ Check out the swift repo
 ~~~bash
 cd $HOME
 git clone https://github.com/openstack/swift.git
+cd swift
 git checkout ${BRANCH}
+cd -
 ~~~
 
 Build a development installation of swift
