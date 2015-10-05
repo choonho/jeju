@@ -5,7 +5,7 @@
 Keyword | Value 
 ---- | ----
 USER | root
-DISK | ${DISK}
+DISK | sdb
 
 ## Installing dependencies
 ~~~bash
