@@ -31,8 +31,9 @@ mkfs.xfs /dev/${DISK}
 ~~~
 
 append /etc/fstab
-~~~text
-/dev/${DISK} /mnt/${DISK}1 xfs noatime,nodiratime,nobarrier,logbufs=8 0 0
+
+~~~bash
+echo "/dev/${DISK} /mnt/${DISK} xfs noatime,nodiratime,nobarrier,logbufs=8 0 0" >> /etc/fstab
 ~~~
 
 ~~~bash
