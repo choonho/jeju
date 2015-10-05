@@ -93,7 +93,67 @@ sudo cp $HOME/swift/doc/saio/rsyncd.conf /etc/
 sudo sed -i "s/<your-user-name>/${USER}/" /etc/rsyncd.conf
 ~~~
 
+edit /etc/default/rsync
 
+~~~text
+RSYNC_ENABLE=true
+RSYNC_OPTS=''
+~~~
+
+On platforms with SELinux in Enforcing mode, ether set to Permissive
+
+~~~bash
+setenforce Permissive
+~~~
+
+Start the rsync daemon
+
+~~~bash
+service rsync restart
+~~~
+
+Verify rsync is accepting connections for all servers
+
+~~~bash
+rsync rsync://pub@localhost/
+~~~
+
+
+## Configuring each node
+
+Populate the /etc/swift directory itself:
+
+~~~bash
+cd $HOME/swift/doc; sudo cp -r saio/swift /etc/swift; cd -
+chown -R ${USER}:${USER} /etc/swift
+~~~
+
+Update <your-user-name> references in the Swift config files:
+
+~~~bash
+find /etc/swift/ -name \*.conf | xargs sudo sed -i "s/<your-user-name>/${USER}/"
+~~~
+
+Install the sample configuration file for running tests:
+
+~~~bash
+cd $HOME/swift/test/sample.conf /etc/swift/test.conf
+~~~
+
+Add an environment variable for running tests below:
+
+~~~bash
+echo "export SWIFT_TEST_CONFIG_FILE=/etc/swift/test.conf" >> $HOME/.bashrc
+~~~
+
+Be sure that your PATH includes the bin directory:
+then construct the initial rings using the provided script:
+
+~~~bash
+echo "export PATH=${PATH}:$HOME/bin" >> $HOME/.bashrc
+. $HOME/.bashrc
+remakerings
+~~~
 
 
 
