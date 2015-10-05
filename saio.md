@@ -167,6 +167,7 @@ then construct the initial rings using the provided script:
 ~~~bash
 echo "export PATH=${PATH}:$HOME/bin" >> $HOME/.bashrc
 . $HOME/.bashrc
+sudo sed -i "s/sdb/${DISK}/" $HOME/bin/remakerings
 remakerings
 ~~~
 
