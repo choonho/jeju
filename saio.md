@@ -5,6 +5,7 @@
 Keyword | Value 
 ---- | ----
 USER | root
+DISK | ${DISK}
 
 ## Installing dependencies
 ~~~bash
@@ -26,25 +27,25 @@ apt-get -y install python-coverage python-dev python-nose \
 Set up a single partition:
 
 ~~~bash
-mkfs.xfs /dev/sdb
+mkfs.xfs /dev/${DISK}
 ~~~
 
 append /etc/fstab
 ~~~text
-/dev/sdb /mnt/sdb1 xfs noatime,nodiratime,nobarrier,logbufs=8 0 0
+/dev/${DISK} /mnt/${DISK}1 xfs noatime,nodiratime,nobarrier,logbufs=8 0 0
 ~~~
 
 ~~~bash
-mkdir /mnt/sdb
-mount /mnt/sdb
-mkdir /mnt/sdb/1 /mnt/sdb/2 /mnt/sdb/3 /mnt/sdb/4
-chown ${USER}:${USER} /mnt/sdb/*
+mkdir /mnt/${DISK}
+mount /mnt/${DISK}
+mkdir /mnt/${DISK}/1 /mnt/${DISK}/2 /mnt/${DISK}/3 /mnt/${DISK}/4
+chown ${USER}:${USER} /mnt/${DISK}/*
 mkdir /srv
-for x in {1..4}; do sudo ln -s /mnt/sdb/$x /srv/$x; done
-sudo mkdir -p /srv/1/node/sdb1 /srv/1/node/sdb5 \
-              /srv/2/node/sdb2 /srv/2/node/sdb6 \
-              /srv/3/node/sdb3 /srv/3/node/sdb7 \
-              /srv/4/node/sdb4 /srv/4/node/sdb8 \
+for x in {1..4}; do sudo ln -s /mnt/${DISK}/$x /srv/$x; done
+sudo mkdir -p /srv/1/node/${DISK}1 /srv/1/node/${DISK}5 \
+              /srv/2/node/${DISK}2 /srv/2/node/${DISK}6 \
+              /srv/3/node/${DISK}3 /srv/3/node/${DISK}7 \
+              /srv/4/node/${DISK}4 /srv/4/node/${DISK}8 \
               /var/run/swift
 chown -R ${USER}:${USER} /var/run/swift
 # **Make sure to include the trailing slash after /srv/$x/**
