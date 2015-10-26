@@ -5,6 +5,7 @@
 Keyword | Value
 ----    | -----
 ZOOKEEPER | 127.0.0.1
+DEV	| em1
 
 # Setup Mesos
 
@@ -32,6 +33,12 @@ edit /etc/mesos/zk
 
 ~~~text
 zk://${ZOOKEEPER}:2181/mesos
+~~~
+
+edit /etc/mesos-slave/ip
+
+~~~bash
+/sbin/ifconfig ${DEV} | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}' > /etc/mesos-slave/ip
 ~~~
 # Reference
 
