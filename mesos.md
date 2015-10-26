@@ -1,4 +1,12 @@
-# Setup
+# Mesos Setup
+
+# Environment
+
+Keyword | Value
+----    | -----
+ZOOKEEPER | 127.0.0.1
+
+# Setup Mesos
 
 ~~~bash
 sudo apt-key adv --keyserver keyserver.ubuntu.com --recv E56151BF
@@ -16,6 +24,15 @@ sudo apt-get -y update
 apt-get -y install mesos
 ~~~
 
+# Edit slave
+
+Update date zookeeper with proper IP
+
+edit /etc/mesos/zk
+
+~~~text
+zk://${ZOOKEEPER}:2181/mesos
+~~~
 # Reference
 
 https://mesosphere.com/downloads/
