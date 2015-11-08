@@ -13,7 +13,7 @@ If curl isn't installed, install it after updating your manager
 
 ~~~bash
 apt-get update
-apt-get install curl
+apt-get install -y curl
 ~~~
 
 ## Get docker source
@@ -26,8 +26,4 @@ curl -sSL https://get.docker.com/ | sh
 ~~~
 
 ### Verify docker
-
-~~~bash
-docker run hello-world
-~~~
 
