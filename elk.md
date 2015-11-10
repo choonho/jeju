@@ -132,7 +132,7 @@ case "$1" in
         while [ "$elasticsearchDOWN" = true ] && [ $timer -lt 10 ]; do
                 response=$(curl -w "%{http_code}\\n" "http://$ES_HOST:9200")
 
-                if (echo "$response" | grep -e "\"200"); then
+                if (echo "$response" | grep -e "200"); then
                 # Start Daemon
                         elasticsearchDOWN=false
                         start-stop-daemon --start --user "$USER" -c "$USER" --pidfile "$PID_FILE" --make-pidfile --background --exec $DAEMON
