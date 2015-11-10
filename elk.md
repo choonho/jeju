@@ -23,6 +23,7 @@ edit /etc/elasticsearch/elasticsearch.yml
 
 ~~~text
 node.name: ${HOSTNAME}
+network.bind_host: 0.0.0.0
 ~~~
 
 ## Install module
