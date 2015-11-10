@@ -31,6 +31,7 @@ apt-get -y install mesos
 # Edit Zookeeper
 
 edit /etc/zookeeper/conf/myid
+
 ~~~text
 ${MYID}
 ~~~
