@@ -57,11 +57,24 @@ update-rc.d -f mesos-master remove
 
 ## Restart mesos slave
 
-edit /etc/mesos-slave/ip
+update /etc/mesos-slave/ip
 
 ~~~bash
 /sbin/ifconfig ${DEV} | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}' > /etc/mesos-slave/ip
 ~~~
+
+edit /etc/mesos-slave/containerizers
+
+~~~text
+docker,mesos
+~~~
+
+edit /etc/mesos-slave/executor_registration_timeout
+
+~~~text
+5mins
+~~~
+
 
 ~~~bash
 service mesos-slave restart
