@@ -63,11 +63,15 @@ update /etc/mesos-slave/ip
 /sbin/ifconfig ${DEV} | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}' > /etc/mesos-slave/ip
 ~~~
 
+## Update containerizers
+
 edit /etc/mesos-slave/containerizers
 
 ~~~text
 docker,mesos
 ~~~
+
+## Update registration timeout
 
 edit /etc/mesos-slave/executor_registration_timeout
 
