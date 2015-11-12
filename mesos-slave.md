@@ -71,7 +71,11 @@ edit /etc/mesos-slave/containerizers
 docker,mesos
 ~~~
 
+We support docker
+
 ## Update registration timeout
+
+timeout update
 
 create /etc/mesos-slave/executor_registration_timeout
 
