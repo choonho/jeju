@@ -73,10 +73,10 @@ docker,mesos
 
 ## Update registration timeout
 
-edit /etc/mesos-slave/executor_registration_timeout
+create /etc/mesos-slave/executor_registration_timeout
 
-~~~text
-5mins
+~~~bash
+echo "5mins" > /etc/mesos-slave/executor_registration_timeout
 ~~~
 
 
