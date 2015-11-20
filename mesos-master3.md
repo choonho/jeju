@@ -30,11 +30,17 @@ apt-get -y install mesos
 
 # Edit Zookeeper
 
+## Update myid
+
+myid must be unique on cluster
+
 edit /etc/zookeeper/conf/myid
 
 ~~~text
 ${MYID}
 ~~~
+
+## Update zookeeper zoo.cfg
 
 ~~~bash
 echo "server.1=${MASTER01}:2888:3888" >> /etc/zookeeper/conf/zoo.cfg
