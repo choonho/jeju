@@ -20,6 +20,7 @@ rpm -Uvh http://repos.mesosphere.io/el/7/noarch/RPMS/mesosphere-el-repo-7-1.noar
 
 ~~~bash
 yum -y install net-tools
+yum -y install docker
 yum -y install mesos
 ~~~
 
@@ -71,8 +72,12 @@ create /etc/mesos-slave/executor_registration_timeout
 echo "5mins" > /etc/mesos-slave/executor_registration_timeout
 ~~~
 
+# Start docker, mesos-slave
 
 ~~~bash
+systemctl enable docker.service
+systemctl start docker.service
+
 systemctl enable mesos-slave.service
 systemctl start mesos-slave.service
 ~~~
