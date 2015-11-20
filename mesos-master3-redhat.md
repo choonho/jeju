@@ -20,7 +20,9 @@ sudo rpm -Uvh http://repos.mesosphere.io/el/7/noarch/RPMS/mesosphere-el-repo-7-1
 # Installation
 
 ~~~bash
+yum -y install net-tools
 yum -y install mesos
+yum -y install mesosphere-zookeeper
 ~~~
 
 # Edit Zookeeper
