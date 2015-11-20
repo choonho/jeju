@@ -79,7 +79,7 @@ update-rc.d -f mesos-slave remove
 edit /etc/mesos-master/ip
 
 ~~~bash
-/sbin/ifconfig ${DEV} | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}' > /etc/mesos-master/ip
+hostname -i > /etc/mesos-master/ip
 ~~~
 
 ## Restart mesos master
