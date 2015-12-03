@@ -27,13 +27,9 @@ useradd -d ${REPO} -m -s /bin/bash gerrit
 
 It's time to download the archive that contains the Gerrit web and ssh service.
 
-Keyword | Value
-----    | ----
-USER    | gerrit
-PWD     | /opt/gerrit
-
 ~~~bash
 wget -O ${REPO}/gerrit-${VER}.war https://www.gerritcodereview.com/download/gerrit-${VER}.war
-cd ~/
+cd ${REPO}
 java -jar gerrit-${VER}.war init --batch -d ~/gerrit_site
+chown -R gerrit:gerrit ${REPO}
 ~~~
