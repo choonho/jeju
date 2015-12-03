@@ -30,6 +30,6 @@ It's time to download the archive that contains the Gerrit web and ssh service.
 ~~~bash
 wget -O ${REPO}/gerrit-${VER}.war https://www.gerritcodereview.com/download/gerrit-${VER}.war
 cd ${REPO}
-java -jar gerrit-${VER}.war init --batch -d ~/gerrit_site
+java -jar gerrit-${VER}.war init --batch -d ${REPO}/gerrit_site
 chown -R gerrit:gerrit ${REPO}
 ~~~
