@@ -7,6 +7,7 @@ For developer, many useful packages exist.
 apt-get -y install vim
 apt-get -y install cscope
 apt-get -y install ctags
+apt-get -y install git
 ~~~
 
 # Update .vimrc
@@ -60,4 +61,7 @@ Change file permission to 755
 
 ~~~bash
 chmod 755 mkcs
+git config --global user.name "Choonho Son"
+git config --global user.email choonho.son@gmail.com
+git config --global core.editor vim
 ~~~
