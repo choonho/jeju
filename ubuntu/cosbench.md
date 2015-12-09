@@ -10,7 +10,7 @@ TARGET  | /usr/local/bin
 ~~~bash
 apt-get update
 apt-get -y install wget unzip openjdk-7-jre
-wget -O ${TARGER}/${VER}.zip https://github.com/intel-cloud/cosbench/releases/download/v${VER}/${VER}.zip
+wget -O ${TARGET}/${VER}.zip https://github.com/intel-cloud/cosbench/releases/download/v${VER}/${VER}.zip
 cd ${TARGET}
 
 unzip ${VER}.zip;
