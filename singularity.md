@@ -3,7 +3,7 @@
 ## Prerequisite
 
 ~~~bash
-yum install -y git
+yum install -y git maven
 ~~~
 
 ## Environment
