@@ -48,7 +48,7 @@ copy build package to /usr/local/bin
 create sigularity configuration file
 
 ~~~bash
-mkdir /etc/sigularity/
+mkdir /etc/singularity/
 ~~~
 
 edit /etc/singularity/singularity.yaml
