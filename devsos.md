@@ -115,17 +115,6 @@ https://mesosphere.com/downloads/
 
 # Sigularity
 
-## Prerequisite
-
-~~~bash
-yum install -y git maven
-~~~
-
-## Environment
-
-Keyword | Value
----- | ----
-
 ## Get source
 
 ~~~bash
@@ -134,11 +123,13 @@ wget -O /usr/local/bin/SingularityService-${SINGULARITY_VER}-shaded.jar https://
 
 # To run
 
-create sigularity configuration file
+## create sigularity configuration file
 
 ~~~bash
 mkdir /etc/singularity/
 ~~~
+
+## update configuration file
 
 edit /etc/singularity/singularity.yaml
 
