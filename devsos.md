@@ -179,7 +179,7 @@ ui:
 
 edit /usr/lib/systemd/system/singularity.service
 
-~~~
+~~~text
 [Unit]
 Description=Singularity Master
 After=network.target
