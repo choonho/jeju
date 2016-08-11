@@ -118,20 +118,6 @@ pygments_style = 'sphinx'
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
 
-import guzzle_sphinx_theme
-
-extensions.append("guzzle_sphinx_theme")
-html_translator_class = 'guzzle_sphinx_theme.HTMLTranslator'
-html_theme_path = guzzle_sphinx_theme.html_theme_path()
-html_theme = 'guzzle_sphinx_theme'
-# Guzzle theme options (see theme.conf for more information)
-
-html_theme_options = {
-    # hack to add tracking
-    #"google_analytics_account": os.getenv('TRACKING', False),
-    #"base_url": "http://docs.aws.amazon.com/aws-sdk-php/guide/latest/"
-}
-
 # -- Options for HTML output ----------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
