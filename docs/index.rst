@@ -17,7 +17,7 @@ Quickstart
 .. toctree::
    :maxdepth: 2
 
-   example
+   example/index
 
 Indices and tables
 ==================
