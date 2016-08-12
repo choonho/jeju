@@ -1,17 +1,16 @@
+Contents
+--------
+* [API Reference](api_ref.md)
+* [Example](example/index.md)
+
 # Getting Started
 
 Contents:
 
-.. toctree::
-   :maxdepth: 2
 
 # Architecture
 
 
-# User Guide
+# Example
 
-.. toctree::
-   :maxdepth: 2
-
-   example/index
 
