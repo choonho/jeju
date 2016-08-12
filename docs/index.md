@@ -5,12 +5,6 @@ Contents
 
 # Getting Started
 
-Contents:
-
-
-# Architecture
-
-
-# Example
-
+``` important:: Its a note! in markdown!
+```
 

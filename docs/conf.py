@@ -56,7 +56,7 @@ master_doc = 'index'
 project = u'jeju'
 copyright = u'2016, Choonho Son'
 author = u'Choonho Son'
-
+github_doc_root = 'https://github.com/choonho/jeju/tree/master/docs'
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
@@ -340,3 +340,10 @@ texinfo_documents = [
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #
 # texinfo_no_detailmenu = False
+# app setup hook
+def setup(app):
+    app.add_config_value('recommonmark_config', {
+            'url_resolver': lambda url: github_doc_root + url,
+            'auto_toc_tree_section': 'Contents',
+            }, True)
+    app.add_transform(AutoStructify)
