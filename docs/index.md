@@ -1,6 +1,6 @@
 Contents
 --------
-* [API Reference](api_ref.md)
+* [Architecture](../README.md)
 * [Example](example/index.md)
 
 # Getting Started
